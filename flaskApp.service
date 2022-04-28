@@ -1,0 +1,9 @@
+Description=Sensor API
+After=network.target
+[Service]
+User=pi
+WorkingDirectory=/home/pi/swan/flaskApp
+ExecStart= python /home/pi/swan/flaskApp/app.py
+Restart=always
+[Install]
+WantedBy=multi-user.target

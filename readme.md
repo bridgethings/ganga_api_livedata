@@ -2,18 +2,11 @@
 
 Contains API for reading data from sensor.
 
-### Service creation
-
-create service with following setup to ensure api is running all time
-
-```
-Description=Sensor API
-After=network.target
-[Service]
-User=pi
-WorkingDirectory=<path>
-ExecStart= python <path>/app.py
-Restart=always
-[Install]
-WantedBy=multi-user.target
-```
+wget https://github.com/bridgethings/ganga_api_livedata/archive/refs/heads/main.zip
+unzip ganga_api_livedata-main.zip
+cd /home/pi/swan
+mkdir flaskApp
+cp /home/pi/ganga_api_livedata-main/. /home/pi/swan/flaskApp
+cd flaskApp
+chmod +x install.sh
+./install.sh
