@@ -7,7 +7,7 @@ Contains API for reading data from sensor.
 create service with following setup to ensure api is running all time
 
 ```
-Description=Gunicorn instance to serve myproject
+Description=Sensor API
 After=network.target
 [Service]
 User=pi
