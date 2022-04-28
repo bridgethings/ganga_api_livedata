@@ -1,19 +1,9 @@
 # API Implementation for displaying Sensor Data
 
-Contains API for reading data from sensor.
 
-cd /home/pi/swan
+Installation:
+wget https://raw.githubusercontent.com/bridgethings/ganga_api_livedata/main/setup.sh
 
-wget https://github.com/bridgethings/ganga_api_livedata/archive/refs/heads/main.zip
+chmod +x setup.sh
 
-unzip ganga_api_livedata-main.zip
-
-mkdir flaskApp
-
-cp /home/pi/swan/ganga_api_livedata-main/. /home/pi/swan/flaskApp
-
-cd flaskApp
-
-chmod +x install.sh
-
-./install.sh
+./setup.sh
