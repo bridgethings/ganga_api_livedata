@@ -39,7 +39,7 @@ def api_req():
 
 
 @app.route("/")
-def api_req():
+def home_req():
     min = datetime.datetime.now().minute
     deadband = 0
     if min >= 58:
