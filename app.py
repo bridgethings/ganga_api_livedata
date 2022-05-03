@@ -8,6 +8,12 @@ app = Flask(__name__)
 
 flag = True
 
+with open('/home/pi/swan/ganga.json', 'r') as myfile:
+    data = myfile.read()
+
+# parse file
+config = json.loads(data)
+
 
 @app.route("/api")
 def api_req():
@@ -40,31 +46,32 @@ def api_req():
 
 @app.route("/")
 def home_req():
-    min = datetime.datetime.now().minute
+    dt = datetime.datetime.now()
+    min = dt.minute
     deadband = 0
     if min >= 58:
         deadband = (60-min)+2
     if min <= 2:
         deadband = 2-min
     if min >= 55 or min <= 5:
-        return render_template("home.html", payload={}, error="device in busy state. Try after "+str(deadband) + "mins")
+        return render_template("home.html", payload={}, error="device in busy state. Try after "+str(deadband) + "mins", date=dt)
     pl = ""
     global flag
     if flag is True:
         flag = False
         pl = read_data()
     else:
-        return render_template("home.html", payload={}, error="device is busy in serving previous request. Try after 2 mins")
+        return render_template("home.html", payload={}, error="device is busy in serving previous request. Try after 2 mins", date=dt)
     error = ""
     data = {}
     if(isinstance(pl, str)):
         error = pl
         flag = True
-        return render_template("home.html", payload=pl, error="")
+        return render_template("home.html", payload=pl, error="", date=dt)
     if(isinstance(pl, dict)):
         data = pl
         flag = True
-        return render_template("home.html", payload=pl["Fields"], error="")
+        return render_template("home.html", payload=pl["Fields"], error="", date=dt)
 
 
 if __name__ == "__main__":
