@@ -44,37 +44,37 @@ def api_req():
         return jsonify({"data": pl["Fields"], "error": ""})
 
 
+# @app.route("/")
+# def home_req():
+#     dt = datetime.datetime.now()
+#     min = dt.minute
+#     deadband = 0
+#     if min >= 58:
+#         deadband = (60-min)+2
+#     if min <= 2:
+#         deadband = 2-min
+#     if min >= 55 or min <= 5:
+#         return render_template("home.html", payload={}, error="device in busy state. Try after "+str(deadband) + "mins", date=dt.strftime('%B %d, %Y, %r'), siteId=config["filename"])
+#     pl = ""
+#     global flag
+#     if flag is True:
+#         flag = False
+#         pl = read_data()
+#     else:
+#         return render_template("home.html", payload={}, error="device is busy in serving previous request. Try after 2 mins", date=dt.strftime('%B %d, %Y, %r'), siteId=config["filename"])
+#     error = ""
+#     data = {}
+#     if(isinstance(pl, str)):
+#         error = pl
+#         flag = True
+#         return render_template("home.html", payload=pl, error="", date=dt.strftime('%B %d, %Y, %r'), siteId=config["filename"])
+#     if(isinstance(pl, dict)):
+#         data = pl
+#         flag = True
+#         return render_template("home.html", payload=pl["Fields"], error="", date=dt.strftime('%B %d, %Y, %r'), siteId=config["filename"])
+
+
 @app.route("/")
-def home_req():
-    dt = datetime.datetime.now()
-    min = dt.minute
-    deadband = 0
-    if min >= 58:
-        deadband = (60-min)+2
-    if min <= 2:
-        deadband = 2-min
-    if min >= 55 or min <= 5:
-        return render_template("home.html", payload={}, error="device in busy state. Try after "+str(deadband) + "mins", date=dt.strftime('%B %d, %Y, %r'), siteId=config["filename"])
-    pl = ""
-    global flag
-    if flag is True:
-        flag = False
-        pl = read_data()
-    else:
-        return render_template("home.html", payload={}, error="device is busy in serving previous request. Try after 2 mins", date=dt.strftime('%B %d, %Y, %r'), siteId=config["filename"])
-    error = ""
-    data = {}
-    if(isinstance(pl, str)):
-        error = pl
-        flag = True
-        return render_template("home.html", payload=pl, error="", date=dt.strftime('%B %d, %Y, %r'), siteId=config["filename"])
-    if(isinstance(pl, dict)):
-        data = pl
-        flag = True
-        return render_template("home.html", payload=pl["Fields"], error="", date=dt.strftime('%B %d, %Y, %r'), siteId=config["filename"])
-
-
-@app.route("/loader")
 def loader_req():
     dt = datetime.datetime.now()
     return render_template("loader.html", date=dt.strftime('%B %d, %Y, %r'), siteId=config["filename"])
