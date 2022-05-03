@@ -74,5 +74,11 @@ def home_req():
         return render_template("home.html", payload=pl["Fields"], error="", date=dt.strftime('%B %d, %Y, %r'), siteId=config["filename"])
 
 
+@app.route("/loader")
+def loader_req():
+    dt = datetime.datetime.now()
+    return render_template("loader.html", date=dt.strftime('%B %d, %Y, %r'), siteId=config["filename"])
+
+
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000)
