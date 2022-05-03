@@ -54,24 +54,24 @@ def home_req():
     if min <= 2:
         deadband = 2-min
     if min >= 55 or min <= 5:
-        return render_template("home.html", payload={}, error="device in busy state. Try after "+str(deadband) + "mins", date=dt)
+        return render_template("home.html", payload={}, error="device in busy state. Try after "+str(deadband) + "mins", date=dt.strftime())
     pl = ""
     global flag
     if flag is True:
         flag = False
         pl = read_data()
     else:
-        return render_template("home.html", payload={}, error="device is busy in serving previous request. Try after 2 mins", date=dt)
+        return render_template("home.html", payload={}, error="device is busy in serving previous request. Try after 2 mins", date=dt.strftime())
     error = ""
     data = {}
     if(isinstance(pl, str)):
         error = pl
         flag = True
-        return render_template("home.html", payload=pl, error="", date=dt)
+        return render_template("home.html", payload=pl, error="", date=dt.strftime())
     if(isinstance(pl, dict)):
         data = pl
         flag = True
-        return render_template("home.html", payload=pl["Fields"], error="", date=dt)
+        return render_template("home.html", payload=pl["Fields"], error="", date=dt.strftime())
 
 
 if __name__ == "__main__":
