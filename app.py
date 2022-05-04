@@ -54,30 +54,30 @@ def api_req():
 #     if min <= 2:
 #         deadband = 2-min
 #     if min >= 55 or min <= 5:
-#         return render_template("home.html", payload={}, error="device in busy state. Try after "+str(deadband) + "mins", date=dt.strftime('%B %d, %Y, %r'), siteId=config["filename"])
+#         return render_template("home.html", payload={}, error="device in busy state. Try after "+str(deadband) + "mins", date=dt.strftime('%B %d, %Y, %r'), siteId=config["displayName"])
 #     pl = ""
 #     global flag
 #     if flag is True:
 #         flag = False
 #         pl = read_data()
 #     else:
-#         return render_template("home.html", payload={}, error="device is busy in serving previous request. Try after 2 mins", date=dt.strftime('%B %d, %Y, %r'), siteId=config["filename"])
+#         return render_template("home.html", payload={}, error="device is busy in serving previous request. Try after 2 mins", date=dt.strftime('%B %d, %Y, %r'), siteId=config["displayName"])
 #     error = ""
 #     data = {}
 #     if(isinstance(pl, str)):
 #         error = pl
 #         flag = True
-#         return render_template("home.html", payload=pl, error="", date=dt.strftime('%B %d, %Y, %r'), siteId=config["filename"])
+#         return render_template("home.html", payload=pl, error="", date=dt.strftime('%B %d, %Y, %r'), siteId=config["displayName"])
 #     if(isinstance(pl, dict)):
 #         data = pl
 #         flag = True
-#         return render_template("home.html", payload=pl["Fields"], error="", date=dt.strftime('%B %d, %Y, %r'), siteId=config["filename"])
+#         return render_template("home.html", payload=pl["Fields"], error="", date=dt.strftime('%B %d, %Y, %r'), siteId=config["displayName"])
 
 
 @app.route("/")
 def loader_req():
     dt = datetime.datetime.now()
-    return render_template("loader.html", date=dt.strftime('%B %d, %Y, %r'), siteId=config["filename"])
+    return render_template("loader.html", date=dt.strftime('%B %d, %Y, %r'), siteId=config["displayName"])
 
 
 if __name__ == "__main__":
