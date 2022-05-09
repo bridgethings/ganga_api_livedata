@@ -41,7 +41,12 @@ def api_req():
     if(isinstance(pl, dict)):
         data = pl
         flag = True
-        return jsonify({"data": pl["Fields"], "error": ""})
+        fields_data = pl["Fields"]
+        fields_data.pop("CDOMTEMP", None)
+        fields_data.pop("CDOM", None)
+        fields_data.pop("SignalStrength", None)
+        fields_data.pop("LEVEL", None)
+        return jsonify({"data": fields_data, "error": ""})
 
 
 # @app.route("/")
