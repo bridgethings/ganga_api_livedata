@@ -42,10 +42,10 @@ def api_req():
         data = pl
         flag = True
         fields_data = pl["Fields"]
-        fields_data.pop("CDOMTEMP", None)
-        fields_data.pop("CDOM", None)
-        fields_data.pop("SignalStrength", None)
-        fields_data.pop("LEVEL", None)
+        del fields_data["CDOM"]
+        del fields_data["CDOMTEMP"]
+        del fields_data["TRYPPPB"]
+        del fields_data["TRYPTEMP"]
         return jsonify({"data": fields_data, "error": ""})
 
 
