@@ -12,81 +12,160 @@ import netifaces as ni
 import logging
 import logging.handlers
 
+BODLOOKUP = [0, 0.5, 1.0, 1.5, 2.0, 3.0, 5.0, 10.0, 20.0]
+TODMF = [1, 3.0, 2.75, 1.0, 2.0, 2.5, 2.0, 1.75, 1.5]
+CODMF = [1, 6.0, 5.5, 1.0, 4.5, 4.25, 4.0, 3.5, 3.0]
 
-def read_data():
-    ss = ""
+
+def fix_bodbased(bod, tod, cod):
     BODLOOKUP = [0, 0.5, 1.0, 1.5, 2.0, 3.0, 5.0, 10.0, 20.0]
     TODMF = [1, 3.0, 2.75, 1.0, 2.0, 2.5, 2.0, 1.75, 1.5]
     CODMF = [1, 6.0, 5.5, 1.0, 4.5, 4.25, 4.0, 3.5, 3.0]
-    cfgDict = {}
+    # get Index
+    if bod > 20:
+        idx = 8
+    else:
+        idx = [i for i, val in enumerate(BODLOOKUP) if bod >= val][-1]
 
-    def checkRanges(bod, tod, cod):
-        idx = 0
-
-        if bod <= 0.5:
-            if tod <= 0.5:
-                if cod <= 0.5:
-                    return "bdl", "bdl", "bdl"
-                return "bdl", "bdl", cod
-            return "bdl", tod, cod
-
-        # get Index
-        if bod > 20:
-            idx = 8
-        else:
-            idx = [i for i, val in enumerate(BODLOOKUP) if bod >= val][-1]
-
-        # check ranges
-        if idx in range(1, 8):
-            todlb = BODLOOKUP[idx]*TODMF[idx]
-            todub = BODLOOKUP[idx+1]*TODMF[idx]
-            # calculate cod ranges
-            codlb = BODLOOKUP[idx]*CODMF[idx]
-            codub = BODLOOKUP[idx+1]*CODMF[idx]
-            if not (tod > todlb and tod <= todub):
-                tod = bod*TODMF[idx]
-            if not (cod > codlb and cod <= codub):
-                cod = bod*CODMF[idx]
-            print(bod, tod, cod)
-            return bod, tod, cod
-        else:
-            if bod >= 20:
-                idx = 8
-                if tod < BODLOOKUP[idx]*TODMF[idx]:
-                    tod = bod*TODMF[idx]
-                if cod < BODLOOKUP[idx]*CODMF[idx]:
-                    cod = bod*CODMF[idx]
+    # check ranges
+    if idx in range(1, 8):
+        todlb = BODLOOKUP[idx]*TODMF[idx]
+        todub = BODLOOKUP[idx+1]*TODMF[idx]
+        # calculate cod ranges
+        codlb = BODLOOKUP[idx]*CODMF[idx]
+        codub = BODLOOKUP[idx+1]*CODMF[idx]
+        if not (tod > todlb and tod <= todub):
+            tod = bod*TODMF[idx]
+        if not (cod > codlb and cod <= codub):
+            cod = bod*CODMF[idx]
+        #print(bod, tod, cod)
         return bod, tod, cod
+    else:
+        if bod >= 20:
+            idx = 8
+            if tod < BODLOOKUP[idx]*TODMF[idx]:
+                tod = bod*TODMF[idx]
+            if cod < BODLOOKUP[idx]*CODMF[idx]:
+                cod = bod*CODMF[idx]
+    return bod, tod, cod
 
-    def validate(bod, tod, cod):
-        if bod != None and tod != None and cod != None:
-            return checkRanges(bod, tod, cod)
 
-        if bod is None:
-            if tod is None:
-                if cod is None:
-                    return "bdl", "bdl", "bdl"
-                else:
-                    CODVAL = [a*b for a, b in zip(BODLOOKUP, CODMF)]
-                    idx = [i for i, val in enumerate(CODVAL) if cod >= val][-1]
-                    tod = BODLOOKUP[idx]*TODMF[idx]
-                    bod = BODLOOKUP[idx]
-                    return bod, tod, cod
+def fix_codbased(bod, tod, cod):
+    # CODLOOKUP = [0, 3.0, 5.5, 8.0, 9.0, 13.0, 20.0, 35.0, 60.0]
+    CODLOOKUP = [0, 3.0, 6.0, 8.0, 10.0, 14.0, 22.0, 40.0, 70.0]
+    TODMF = [1, 3.0, 2.75, 1.0, 2.0, 2.5, 2.0, 1.75, 1.5]
+    CODMF = [1, 6.0, 5.5, 5.0, 4.5, 4.25, 4.0, 3.5, 3.0]
+    BODLOOKUP = [0, 0.5, 1.0, 1.5, 2.0, 3.0, 5.0, 10.0, 20.0]
+    # get Index
+    if cod > 70:
+        idx = 8
+    else:
+        idx = [i for i, val in enumerate(CODLOOKUP) if cod >= val][-1]
+        # print(idx)
+
+    bod = cod/CODMF[idx]
+
+    # check ranges
+    if idx in range(1, 8):
+        todlb = BODLOOKUP[idx]*TODMF[idx]
+        todub = BODLOOKUP[idx+1]*TODMF[idx]
+        # calculate cod ranges
+
+        if not (tod > todlb and tod <= todub):
+            tod = bod*TODMF[idx]
+        #print(bod, tod, cod)
+        return bod, tod, cod
+    else:
+        if cod >= 60:
+            idx = 8
+            bod = cod/CODMF[idx]
+            if tod < BODLOOKUP[idx]*TODMF[idx]:
+                tod = bod*TODMF[idx]
+    return bod, tod, cod
+
+
+def fix_todbased(bod, tod, cod):
+    BODLOOKUP = [0, 0.5, 1.0, 1.5, 2.0, 3.0, 5.0, 10.0, 20.0]
+    TODLOOKUP = [0, 1.5, 3.0, 4.0, 5.0, 7.0, 12.0, 20.0, 35.0]
+    TODMF = [1, 3.0, 2.75, 2.5, 2.0, 2.5, 2.0, 1.75, 1.5]
+    CODMF = [1, 6.0, 5.5, 1.0, 4.5, 4.25, 4.0, 3.5, 3.0]
+
+    # get Index
+    if tod > 35:
+        idx = 8
+    else:
+        idx = [i for i, val in enumerate(TODLOOKUP) if tod >= val][-1]
+
+    # check ranges
+    if idx in range(1, 8):
+        # calculate cod ranges
+        bod = tod/TODMF[idx]
+        cod = bod*CODMF[idx]
+        #print(bod, tod, cod)
+        return bod, tod, cod
+    else:
+        if cod >= 60:
+            idx = 8
+            bod = cod/CODMF[idx]
+            if tod < BODLOOKUP[idx]*TODMF[idx]:
+                tod = bod*TODMF[idx]
+    return bod, tod, cod
+
+
+def checkRanges(bod, tod, cod):
+    bod = float(bod)
+    tod = float(tod)
+    cod = float(cod)
+    idx = 0
+
+    if bod < 0.5 and cod < 0.5 and tod < 0.5:
+        return 0.5, 0.5, 0.5
+    elif bod >= 0.5 and cod >= 0.5 and tod >= 0.5:
+        return fix_bodbased(bod, tod, cod)
+    elif bod >= 0.5 and (cod < 0.5 or tod < 0.5):
+        print("fixing based on bod")
+        return fix_bodbased(bod, tod, cod)
+    elif cod >= 0.5 and (bod < 0.5 or tod < 0.5):
+        print("fixing based on cod")
+        return fix_codbased(bod, tod, cod)
+    elif tod >= 0.5 and (bod < 0.5 or cod < 0.5):
+        return fix_todbased(bod, tod, cod)
+
+
+def validate(bod, tod, cod):
+    if bod != None and tod != None and cod != None:
+        return checkRanges(bod, tod, cod)
+
+    if bod is None:
+        if tod is None:
+            if cod is None:
+                return "bdl", "bdl", "bdl"
             else:
-                TODVAL = [a*b for a, b in zip(BODLOOKUP, TODMF)]
-                idx = [i for i, val in enumerate(TODVAL) if tod >= val][-1]
+                CODVAL = [a*b for a, b in zip(BODLOOKUP, CODMF)]
+                idx = [i for i, val in enumerate(CODVAL) if cod >= val][-1]
+                tod = BODLOOKUP[idx]*TODMF[idx]
                 bod = BODLOOKUP[idx]
-                if cod is None:
-                    cod = BODLOOKUP[idx]*CODMF[idx]
                 return bod, tod, cod
         else:
-            if tod is None:
-                idx = [i for i, val in enumerate(BODLOOKUP) if bod >= val][-1]
-                tod = BODLOOKUP[idx]*TODMF[idx]
+            TODVAL = [a*b for a, b in zip(BODLOOKUP, TODMF)]
+            idx = [i for i, val in enumerate(TODVAL) if tod >= val][-1]
+            bod = BODLOOKUP[idx]
             if cod is None:
-                idx = [i for i, val in enumerate(BODLOOKUP) if bod >= val][-1]
-                tod = BODLOOKUP[idx]*CODMF[idx]
+                cod = BODLOOKUP[idx]*CODMF[idx]
             return bod, tod, cod
+    else:
+        if tod is None:
+            idx = [i for i, val in enumerate(BODLOOKUP) if bod >= val][-1]
+            tod = BODLOOKUP[idx]*TODMF[idx]
+        if cod is None:
+            idx = [i for i, val in enumerate(BODLOOKUP) if bod >= val][-1]
+            tod = BODLOOKUP[idx]*CODMF[idx]
+        return bod, tod, cod
+
+
+def read_data():
+    ss = ""
+    cfgDict = {}
 
     with open("/home/pi/swan/ganga.json", "r") as cfghandle:
         cfgDict = json.load(cfghandle)
@@ -220,6 +299,42 @@ def read_data():
                       fieldsJson["TOC"], fieldsJson["COD"]))
                 fieldsJson["BOD"], fieldsJson["TOC"], fieldsJson["COD"] = validate(
                     fieldsJson["BOD"], fieldsJson["TOC"], fieldsJson["COD"])
+
+                if fieldsJson["DO"] <= 0.2:
+                    fieldsJson["DO"] = 0.2
+                if fieldsJson["DO"] >= 20.0:
+                    fieldsJson["DO"] = 20.0
+
+                if fieldsJson["CONDUCTIVITY"] <= 1.0:
+                    fieldsJson["CONDUCTIVITY"] = 1.0
+                if fieldsJson["CONDUCTIVITY"] >= 5000.0:
+                    fieldsJson["CONDUCTIVITY"] = 5000.0
+
+                if fieldsJson["NITRATE"] <= float(0):
+                    fieldsJson["NITRATE"] = float(0)
+                if fieldsJson["NITRATE"] >= 50.0:
+                    fieldsJson["NITRATE"] = 50.0
+
+                if fieldsJson["PH"] <= float(0):
+                    fieldsJson["PH"] = float(0)
+                if fieldsJson["PH"] >= 14.0:
+                    fieldsJson["PH"] = 14.0
+
+                if fieldsJson["TURBIDITY"] <= float(0):
+                    fieldsJson["TURBIDITY"] = float(0)
+                if fieldsJson["TURBIDITY"] >= 2000.0:
+                    fieldsJson["TURBIDITY"] = 2000.0
+
+                if fieldsJson["TEMPERATURE"] <= float(0):
+                    fieldsJson["TEMPERATURE"] = float(0)
+                if fieldsJson["TEMPERATURE"] >= 50.0:
+                    fieldsJson["TEMPERATURE"] = 50.0
+
+                if fieldsJson["CHLORIDE"] <= float(0):
+                    fieldsJson["CHLORIDE"] = float(0)
+                if fieldsJson["CHLORIDE"] >= 200.0:
+                    fieldsJson["CHLORIDE"] = 200.0
+
                 dataJson["Fields"] = fieldsJson
                 flag = False
                 print(dataJson)
