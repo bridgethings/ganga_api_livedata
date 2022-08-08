@@ -49,7 +49,6 @@ def fix_bodbased(bod, tod, cod):
                 cod = bod*CODMF[idx]
     return bod, tod, cod
 
-
 def fix_codbased(bod, tod, cod):
     # CODLOOKUP = [0, 3.0, 5.5, 8.0, 9.0, 13.0, 20.0, 35.0, 60.0]
     CODLOOKUP = [0, 3.0, 6.0, 8.0, 10.0, 14.0, 22.0, 40.0, 70.0]
@@ -66,7 +65,7 @@ def fix_codbased(bod, tod, cod):
     bod = cod/CODMF[idx]
 
     # check ranges
-    if idx in range(1, 8):
+    if idx in range(8):
         todlb = BODLOOKUP[idx]*TODMF[idx]
         todub = BODLOOKUP[idx+1]*TODMF[idx]
         # calculate cod ranges
@@ -83,7 +82,6 @@ def fix_codbased(bod, tod, cod):
                 tod = bod*TODMF[idx]
     return bod, tod, cod
 
-
 def fix_todbased(bod, tod, cod):
     BODLOOKUP = [0, 0.5, 1.0, 1.5, 2.0, 3.0, 5.0, 10.0, 20.0]
     TODLOOKUP = [0, 1.5, 3.0, 4.0, 5.0, 7.0, 12.0, 20.0, 35.0]
@@ -96,6 +94,7 @@ def fix_todbased(bod, tod, cod):
     else:
         idx = [i for i, val in enumerate(TODLOOKUP) if tod >= val][-1]
 
+    print(idx)
     # check ranges
     if idx in range(1, 8):
         # calculate cod ranges
@@ -104,11 +103,8 @@ def fix_todbased(bod, tod, cod):
         #print(bod, tod, cod)
         return bod, tod, cod
     else:
-        if cod >= 60:
-            idx = 8
-            bod = cod/CODMF[idx]
-            if tod < BODLOOKUP[idx]*TODMF[idx]:
-                tod = bod*TODMF[idx]
+        bod = tod/TODMF[idx]
+        cod = bod*CODMF[idx]
     return bod, tod, cod
 
 
@@ -117,24 +113,36 @@ def checkRanges(bod, tod, cod):
     tod = float(tod)
     cod = float(cod)
     idx = 0
-
-    if bod < 0.5 and cod < 0.5 and tod < 0.5:
-        return 0.5, 0.5, 0.5
-    elif bod >= 0.5 and cod >= 0.5 and tod >= 0.5:
-        return fix_bodbased(bod, tod, cod)
-    elif bod >= 0.5 and (cod < 0.5 or tod < 0.5):
+    print(bod, tod, cod)
+    if bod < 0.5 and cod < 5 and tod < 1:
+        print("fixing based on default values")
+        return 0.5, 1, 5
+    elif bod >= 0.5 and cod >= 5 and tod >= 1:
         print("fixing based on bod")
         return fix_bodbased(bod, tod, cod)
-    elif cod >= 0.5 and (bod < 0.5 or tod < 0.5):
+    elif bod >= 0.5 and (cod < 5 or tod < 1):
+        print("fixing based on bod")
+        return fix_bodbased(bod, tod, cod)
+    elif cod >= 5 and (bod < 0.5 or tod < 1):
         print("fixing based on cod")
         return fix_codbased(bod, tod, cod)
-    elif tod >= 0.5 and (bod < 0.5 or cod < 0.5):
+    elif tod >= 1 and (bod < 0.5 or cod < 5):
+        print("fixing based on tod")
         return fix_todbased(bod, tod, cod)
 
 
 def validate(bod, tod, cod):
     if bod != None and tod != None and cod != None:
-        return checkRanges(bod, tod, cod)
+        bod, tod, cod = checkRanges(bod, tod, cod)
+        if bod < 0.5:
+            bod = 0.5
+        if tod < 1.0:
+            tod = 1.0
+        if cod < 5.0:
+            cod = 5.0
+        if tod==bod:
+            tod = bod*1.5
+        return (bod, tod, cod)
 
     if bod is None:
         if tod is None:
@@ -334,6 +342,10 @@ def read_data():
                     fieldsJson["CHLORIDE"] = float(0)
                 if fieldsJson["CHLORIDE"] >= 200.0:
                     fieldsJson["CHLORIDE"] = 200.0
+                if float(fieldsJson["DEPTH"]) <= 0.5:
+                    fieldsJson["DEPTH"] = float(
+                    fieldsJson["DEPTH"])+cfgDict["depth"]
+                    fieldsJson["LEVEL"] = float(fieldsJson["LEVEL"])+fieldsJson["DEPTH"]
 
                 dataJson["Fields"] = fieldsJson
                 flag = False
