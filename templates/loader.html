@@ -62,11 +62,28 @@
               var keys = [];
               let placeholder = document.getElementById("placeholder");
               let data = res["data"];
-              for (var k in data) {
+              let mod_data = {};
+              mod_data["BOD (mg/L)"]=data["BOD"];
+              mod_data["COD (mg/L)"]=data["COD"];
+              mod_data["CHLORIDE (mg/L)"]=data["CHLORIDE"];
+              mod_data["CONDUCTIVITY (μS/cm)"]=data["CONDUCTIVITY"];
+              mod_data["DEPTH (m)"]=data["DEPTH"];
+              mod_data["DO (mg/L)"]=data["DO"];
+              mod_data["GPS"]=data["GPS"];
+              mod_data["LEVEL (m)"]=data["LEVEL"];
+              mod_data["NITRATE (mg/L)"]=data["NITRATE"];
+              mod_data["SignalStrength"]=data["SignalStrength"];
+              mod_data["SiteID"]=data["SiteID"];
+              mod_data["PH"]=data["PH"];
+              mod_data["TEMPERATURE (°c)"]=data["TEMPERATURE"];
+              mod_data["TOC (mg/L)"]=data["TOC"];
+              mod_data["TURBIDITY (NTU)"]=data["TURBIDITY"];
+              
+              for (var k in mod_data) {
                 placeholder.innerHTML += `
                 <tr>
                     <td>${k}</td>
-                    <td>${data[k]}</td>
+                    <td>${mod_data[k]}</td>
                 </tr>
                 `;
               }
